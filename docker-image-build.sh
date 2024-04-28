@@ -24,10 +24,10 @@ if [ ! -f "$DOCKERFILE_PATH" ]; then
 fi
 
 # Get the Git branch name
-BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+BRANCH_NAME=$(git -C "$(dirname "$DOCKERFILE_PATH")" rev-parse --abbrev-ref HEAD)
 
 # Get the Git commit hash (short format)
-GIT_COMMIT=$(git rev-parse --short HEAD)
+GIT_COMMIT=$(git -C "$(dirname "$DOCKERFILE_PATH")" rev-parse --short HEAD)
 
 # Build with branch name and commit hash as build arguments
 docker build -t "${IMAGE_NAME}:${BRANCH_NAME}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg GIT_COMMIT="${GIT_COMMIT}" -f "${DOCKERFILE_PATH}" .
