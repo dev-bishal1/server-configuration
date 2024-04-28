@@ -7,7 +7,7 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # Argument handling
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
     echo "Error: Please provide image name and Dockerfile path as arguments."
     echo "Usage: $0 IMAGE_NAME DOCKERFILE_PATH"
     exit 1
@@ -16,6 +16,7 @@ fi
 # Capture arguments
 IMAGE_NAME="$1"
 DOCKERFILE_PATH="$2"
+GIT_REPO_PATH="$3"
 
 # Ensure Dockerfile path exists
 if [ ! -f "$DOCKERFILE_PATH" ]; then
@@ -24,10 +25,10 @@ if [ ! -f "$DOCKERFILE_PATH" ]; then
 fi
 
 # Get the Git branch name
-BRANCH_NAME=$(git -C "$(dirname "$DOCKERFILE_PATH")" rev-parse --abbrev-ref HEAD)
+BRANCH_NAME=$(git -C "$(dirname "$GIT_REPO_PATH")" rev-parse --abbrev-ref HEAD)
 
 # Get the Git commit hash (short format)
-GIT_COMMIT=$(git -C "$(dirname "$DOCKERFILE_PATH")" rev-parse --short HEAD)
+GIT_COMMIT=$(git -C "$(dirname "$GIT_REPO_PATH")" rev-parse --short HEAD)
 
 # Build with branch name and commit hash as build arguments
 docker build -t "${IMAGE_NAME}:${BRANCH_NAME}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg GIT_COMMIT="${GIT_COMMIT}" -f "${DOCKERFILE_PATH}" .
