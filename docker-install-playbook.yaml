@@ -6,27 +6,27 @@
   become: yes
 
   vars:
-  arch_mapping: # Map ansible architecture {{ ansible_architecture }} names to Docker's architecture names
-    x86_64: amd64
-    aarch64: arm64
-  docker_packages:
-    - docker-ce
-    - docker-ce-cli
-    - containerd.io
-    - docker-buildx-plugin
-    - docker-compose-plugin
-  docker_old_packages:
-    - docker
-    - docker-client
-    - docker-client
-    - docker-client-latest
-    - docker-common
-    - docker-latest
-    - docker-latest-logrotate
-    - docker-logrotate
-    - docker-selinux
-    - docker-engine-selinux
-    - docker-engine
+    arch_mapping: # Map ansible architecture {{ ansible_architecture }} names to Docker's architecture names
+      x86_64: amd64
+      aarch64: arm64
+    docker_packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    docker_old_packages:
+      - docker
+      - docker-client
+      - docker-client
+      - docker-client-latest
+      - docker-common
+      - docker-latest
+      - docker-latest-logrotate
+      - docker-logrotate
+      - docker-selinux
+      - docker-engine-selinux
+      - docker-engine
 
   tasks:
     - name: Check package manager
