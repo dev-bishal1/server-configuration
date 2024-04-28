@@ -22,7 +22,4 @@ BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 GIT_COMMIT=$(git rev-parse --short HEAD)
 
 # Build with branch name and commit hash as build arguments
-docker build -t "${IMAGE_NAME}:${BRANCH_NAME}" --build-arg BRANCH_NAME="${BRANCH_NAME}" --build-arg GIT_COMMIT="${GIT_COMMIT}" .
-
-# Tag with commit ID
-docker tag "${IMAGE_NAME}:${BRANCH_NAME}" "${IMAGE_NAME}:${GIT_COMMIT}"
+docker build -t "${IMAGE_NAME}:${BRANCH_NAME}" -t "${IMAGE_NAME}:${GIT_COMMIT}" .
