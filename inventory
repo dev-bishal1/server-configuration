@@ -1,0 +1,4 @@
+server_name ansible_host=remote_machine_ip_address ansible_user=remote_machine_user_name ansible_ssh_private_key=/path/to/the/ssh_key
+
+; Example:
+; control-node ansible_host=192.168.0.1 ansible_user=ghost ansible_ssh_private_key=~/.ssh/id_rsa

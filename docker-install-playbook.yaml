@@ -1,0 +1,124 @@
+# Note: Only use this playbook if your OS package manager is dnf or apt
+---
+- name: Install Docker
+  hosts: all
+  remote_user: netwon # replace this with your remote_user name
+  become: yes
+
+  vars:
+  arch_mapping: # Map ansible architecture {{ ansible_architecture }} names to Docker's architecture names
+    x86_64: amd64
+    aarch64: arm64
+  docker_packages:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-buildx-plugin
+    - docker-compose-plugin
+  docker_old_packages:
+    - docker
+    - docker-client
+    - docker-client
+    - docker-client-latest
+    - docker-common
+    - docker-latest
+    - docker-latest-logrotate
+    - docker-logrotate
+    - docker-selinux
+    - docker-engine-selinux
+    - docker-engine
+
+  tasks:
+    - name: Check package manager
+      ansible.builtin.set_fact:
+        package_manager: "{{ ansible_pkg_mgr }}"
+
+    - name: Update and upgrade all packages to the latest version
+      ansible.builtin.package:
+        name: "*"
+        state: latest
+
+    - name: Unistall older versions of docker
+      ansible.builtin.package:
+        name: "{{ docker_old_packages }}"
+        state: absent
+
+    - name: Install required packages
+      ansible.builtin.dnf:
+        name:
+          - dnf-plugins-core
+      when: package_manager == "dnf"
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - software-properties-common
+      when: package_manager == "apt"
+
+    - name: Create directory for Docker's GPG key
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+      when: package_manager == "apt"
+
+    - name: Add Docker's official GPG key
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        keyring: /etc/apt/keyrings/docker.gpg
+        state: present
+      when: package_manager == "apt"
+
+    - name: Add Docker repository
+      community.general.dnf_config_manager:
+        name: docker-ce.repo
+        state: present
+        baseurl: https://download.docker.com/linux/fedora/docker-ce.repo
+        enabled: yes
+        gpgcheck: yes
+      when: package_manager == "dnf"
+
+    - name: Print architecture variables
+      ansible.builtin.debug:
+        msg: "Architecture: {{ ansible_architecture }}, Codename: {{ ansible_lsb.codename }}"
+      when: package_manager == "apt"
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [arch={{ arch_mapping[ansible_architecture] | default(ansible_architecture) }}
+          signed-by=/etc/apt/keyrings/docker.gpg]
+          https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+        filename: docker
+        state: present
+      when: package_manager == "apt"
+
+    - name: Install Docker and related packages
+      ansible.builtin.package:
+        name: "{{ docker_packages }}"
+        state: present
+        update_cache: yes
+
+    - name: Add Docker group
+      ansible.builtin.group:
+        name: docker
+        state: present
+
+    - name: Add user to Docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Enable and start Docker services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      loop:
+        - docker.service
+        - containerd.service
