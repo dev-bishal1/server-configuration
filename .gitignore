@@ -1,5 +1,1 @@
 .vscode
-
-# /home/netwon/Devops/blockseas/block-seas-qr-restaurant-api
-
-# ./docker-image-build.sh restaurant-api /home/netwon/Devops/blockseas/block-seas-qr-restaurant-api/Dockerfile /home/netwon/Devops/blockseas/block-seas-qr-restaurant-api 
